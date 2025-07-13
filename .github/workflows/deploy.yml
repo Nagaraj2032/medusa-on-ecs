@@ -38,10 +38,11 @@ jobs:
           IMAGE_URI=$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY:$IMAGE_TAG
 
           echo "👉 Building Docker image: $IMAGE_URI"
-          docker build -t $IMAGE_URI -f medusa-backend/Dockerfile .
+          docker build -t $IMAGE_URI -f Docker/Dockerfile .
 
           echo "📤 Pushing Docker image to ECR"
           docker push $IMAGE_URI
+        working-directory: medusa-backend
 
       - name: 🛠️ Setup Terraform
         uses: hashicorp/setup-terraform@v3
