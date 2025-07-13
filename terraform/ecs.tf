@@ -2,26 +2,6 @@ resource "aws_ecs_cluster" "medusa_cluster" {
   name = "medusa-cluster"
 }
 
-resource "aws_iam_role" "ecs_task_execution_role" {
-  name = "ecsTaskExecutionRole"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Action    = "sts:AssumeRole"
-      Effect    = "Allow"
-      Principal = {
-        Service = "ecs-tasks.amazonaws.com"
-      }
-    }]
-  })
-}
-
-resource "aws_iam_role_policy_attachment" "ecs_task_execution_policy" {
-  role       = aws_iam_role.ecs_task_execution_role.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
-}
-
 # Medusa Server Task Definition
 resource "aws_ecs_task_definition" "medusa_server" {
   family                   = "medusa-server"
@@ -45,22 +25,21 @@ resource "aws_ecs_task_definition" "medusa_server" {
       environment = [
         { name = "COOKIE_SECRET", value = "supersecret" },
         { name = "JWT_SECRET", value = "supersecret" },
-        {
-  name  = "DATABASE_URL",
-  value = "postgresql://postgres:${var.db_password}@${aws_db_instance.medusa_postgres.endpoint}:5432/medusa-db"
-},
-{
-  name  = "REDIS_URL",
-  value = "redis://${aws_elasticache_cluster.medusa_redis.cache_nodes[0].address}:6379"
-},
-
         { name = "DISABLE_MEDUSA_ADMIN", value = "false" },
         { name = "MEDUSA_WORKER_MODE", value = "server" },
         { name = "PORT", value = "9000" },
         { name = "STORE_CORS", value = "http://yourstore.com" },
         { name = "ADMIN_CORS", value = "http://admin.medusa.com" },
         { name = "AUTH_CORS", value = "http://admin.medusa.com,http://yourstore.com" },
-        { name = "MEDUSA_BACKEND_URL", value = "http://<alb-dns>:9000" }
+        { name = "MEDUSA_BACKEND_URL", value = "http://<alb-dns>:9000" },
+        {
+          name  = "DATABASE_URL",
+          value = "postgresql://postgres:${var.db_password}@${aws_db_instance.medusa_postgres.endpoint}:5432/medusa-db"
+        },
+        {
+          name  = "REDIS_URL",
+          value = "redis://${aws_elasticache_cluster.medusa_redis.cache_nodes[0].address}:6379"
+        }
       ]
     }
   ])
@@ -89,18 +68,17 @@ resource "aws_ecs_task_definition" "medusa_worker" {
       environment = [
         { name = "COOKIE_SECRET", value = "supersecret" },
         { name = "JWT_SECRET", value = "supersecret" },
-        {
-  name  = "DATABASE_URL",
-  value = "postgresql://postgres:${var.db_password}@${aws_db_instance.medusa_postgres.endpoint}:5432/medusa-db"
-},
-{
-  name  = "REDIS_URL",
-  value = "redis://${aws_elasticache_cluster.medusa_redis.cache_nodes[0].address}:6379"
-},
-
         { name = "DISABLE_MEDUSA_ADMIN", value = "true" },
         { name = "MEDUSA_WORKER_MODE", value = "worker" },
-        { name = "PORT", value = "9000" }
+        { name = "PORT", value = "9000" },
+        {
+          name  = "DATABASE_URL",
+          value = "postgresql://postgres:${var.db_password}@${aws_db_instance.medusa_postgres.endpoint}:5432/medusa-db"
+        },
+        {
+          name  = "REDIS_URL",
+          value = "redis://${aws_elasticache_cluster.medusa_redis.cache_nodes[0].address}:6379"
+        }
       ]
     }
   ])
@@ -114,9 +92,9 @@ resource "aws_ecs_service" "medusa_server_service" {
   launch_type     = "FARGATE"
 
   network_configuration {
-    subnets         = var.public_subnet_ids
+    subnets          = var.public_subnet_ids
     assign_public_ip = true
-    security_groups = []  # Add your security groups here if any
+    security_groups  = [aws_security_group.allow_all.id] # <-- use real SG here
   }
 
   load_balancer {
@@ -136,8 +114,8 @@ resource "aws_ecs_service" "medusa_worker_service" {
   launch_type     = "FARGATE"
 
   network_configuration {
-    subnets         = var.public_subnet_ids
+    subnets          = var.public_subnet_ids
     assign_public_ip = true
-    security_groups = []  # Add your security groups here if any
+    security_groups  = [aws_security_group.allow_all.id] # <-- use real SG here
   }
 }

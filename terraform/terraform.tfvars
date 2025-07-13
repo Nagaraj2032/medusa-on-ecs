@@ -8,6 +8,6 @@ public_subnet_ids = [
 ]
 
 private_subnet_ids = [
-  "subnet-07ea77a4b1443d6f0", 
-  "subnet-080510f7c8bc5101e"  
+  "subnet-07ea77a4b1443d6f0",
+  "subnet-080510f7c8bc5101e"
 ]
