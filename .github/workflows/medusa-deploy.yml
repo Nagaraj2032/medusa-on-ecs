@@ -18,13 +18,12 @@ jobs:
       ECS_SERVICE_WORKER: ${{ secrets.ECS_SERVICE_WORKER }}
 
     steps:
-    - name: ✅ Checkout code
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 1
-        submodules: false
-
-    - name: 🔐 Configure AWS credentials
+     - name: ✅ Checkout code
+  uses: actions/checkout@v4
+  with:
+    fetch-depth: 1
+    submodules: true  # 💡 THIS line ensures the medusa-backend folder is cloned
+   - name: 🔐 Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v2
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
