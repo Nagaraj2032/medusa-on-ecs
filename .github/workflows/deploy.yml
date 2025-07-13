@@ -15,11 +15,11 @@ jobs:
       ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
 
     steps:
-      - name: ✅ Checkout repository (with submodules)
+            - name: ✅ Checkout repository (with submodules)
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
-          submodules: true
+          submodules: recursive
 
       - name: 🔐 Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
