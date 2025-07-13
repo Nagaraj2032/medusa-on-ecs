@@ -18,37 +18,43 @@ jobs:
       ECS_SERVICE_WORKER: ${{ secrets.ECS_SERVICE_WORKER }}
 
     steps:
-    - name: Checkout code
+    - name: ✅ Checkout code
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 1
+        submodules: false
 
-    - name: Configure AWS credentials
+    - name: 🔐 Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v2
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ secrets.AWS_REGION }}
 
-    - name: Login to Amazon ECR
+    - name: 🔐 Login to Amazon ECR
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v2
 
-    - name: Build and Push Docker image to ECR
+    - name: 🐳 Build and Push Docker image to ECR
       run: |
         IMAGE_TAG=latest
         ACCOUNT_ID=$(aws sts get-caller-identity --query 'Account' --output text)
         IMAGE_URI=$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY:$IMAGE_TAG
 
+        echo "👉 Building Docker image: $IMAGE_URI"
         docker build -t $IMAGE_URI ./medusa-backend
+
+        echo "📤 Pushing Docker image to ECR"
         docker push $IMAGE_URI
 
-    - name: Update ECS Server Service
+    - name: 🚀 Update ECS Server Service
       run: |
         aws ecs update-service \
           --cluster $ECS_CLUSTER \
           --service $ECS_SERVICE_SERVER \
           --force-new-deployment
 
-    - name: Update ECS Worker Service
+    - name: 🚀 Update ECS Worker Service
       run: |
         aws ecs update-service \
           --cluster $ECS_CLUSTER \
