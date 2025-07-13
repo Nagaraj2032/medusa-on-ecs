@@ -15,7 +15,7 @@ jobs:
       ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
 
     steps:
-            - name: ✅ Checkout repository (with submodules)
+      - name: ✅ Checkout repository (with submodules)
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
