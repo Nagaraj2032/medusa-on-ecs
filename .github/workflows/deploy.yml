@@ -38,7 +38,7 @@ jobs:
           IMAGE_URI=$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY:$IMAGE_TAG
 
           echo "👉 Building Docker image: $IMAGE_URI"
-          docker build -t $IMAGE_URI ./medusa-backend
+          docker build -t $IMAGE_URI -f ./medusa-backend/Dockerfile ./medusa-backend
 
           echo "📤 Pushing Docker image to ECR"
           docker push $IMAGE_URI
@@ -55,7 +55,13 @@ jobs:
       - name: 🧪 Terraform Plan
         run: terraform plan
         working-directory: terraform
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
       - name: 🚀 Terraform Apply
         run: terraform apply -auto-approve
         working-directory: terraform
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
