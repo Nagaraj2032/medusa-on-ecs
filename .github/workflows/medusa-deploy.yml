@@ -42,7 +42,8 @@ jobs:
         IMAGE_URI=$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY:$IMAGE_TAG
 
         echo "👉 Building Docker image: $IMAGE_URI"
-        docker build -t $IMAGE_URI ./medusa-backend
+       docker build -t $IMAGE_URI -f ./medusa-backend/docker/Dockerfile ./medusa-backend
+
 
         echo "📤 Pushing Docker image to ECR"
         docker push $IMAGE_URI
