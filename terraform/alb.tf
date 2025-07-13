@@ -41,7 +41,7 @@ resource "aws_lb_target_group" "medusa_tg" {
   target_type = "ip"
 
   health_check {
-    path                = "/health"
+    path                = "/store/products"  # ✅ Use existing Medusa route
     protocol            = "HTTP"
     matcher             = "200"
     interval            = 30
