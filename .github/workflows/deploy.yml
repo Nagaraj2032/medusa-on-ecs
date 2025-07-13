@@ -31,19 +31,19 @@ jobs:
       - name: 🐳 Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: 🐳 Build and Push Docker image to ECR
-        run: |
-          IMAGE_TAG=latest
-          ACCOUNT_ID=$(aws sts get-caller-identity --query 'Account' --output text)
-          IMAGE_URI=$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY:$IMAGE_TAG
+     - name: 🐳 Build and Push Docker image to ECR
+  run: |
+    IMAGE_TAG=latest
+    ACCOUNT_ID=$(aws sts get-caller-identity --query 'Account' --output text)
+    IMAGE_URI=$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY:$IMAGE_TAG
 
-          echo "👉 Building Docker image: $IMAGE_URI"
-          docker build -t $IMAGE_URI -f Docker/Dockerfile .
+    echo "👉 Building Docker image: $IMAGE_URI"
+    docker build -t $IMAGE_URI -f Docker/Dockerfile .
 
-          echo "📤 Pushing Docker image to ECR"
-          docker push $IMAGE_URI
-        working-directory: medusa-backend
-
+    echo "📤 Pushing Docker image to ECR"
+    docker push $IMAGE_URI
+  working-directory: medusa-backend
+ 
       - name: 🛠️ Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
